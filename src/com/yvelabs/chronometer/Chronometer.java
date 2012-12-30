@@ -6,9 +6,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.widget.RemoteViews.RemoteView;
 import android.widget.TextView;
 
+import com.yvelabs.chronometer.utils.AnimationUtils;
 import com.yvelabs.chronometer.utils.DateUtils;
 import com.yvelabs.chronometer.utils.FontUtils;
 
@@ -27,6 +29,7 @@ public class Chronometer extends TextView {
         void onChronometerTick(Chronometer chronometer);
 
     }
+   
 
     private boolean mStarted;
     private OnChronometerTickListener mOnChronometerTickListener;
@@ -34,8 +37,10 @@ public class Chronometer extends TextView {
     private long stopTime;
     private long pauseDuringTime = 0;
     private DateUtils dateUtis;
-    
-    private static final int TICK_WHAT = 2;
+    private Object extra;
+    private boolean isStartAlphaAnimation = false; //暂停时, 是否播放动画
+
+	private static final int TICK_WHAT = 2;
     
     /***
      * Initialize this Chronometer object.
@@ -63,14 +68,30 @@ public class Chronometer extends TextView {
     }
 
     private void init() {
+    	setSingleLine();
+    	setGravity(Gravity.RIGHT);
     	dateUtis = new DateUtils();
 		//set font
 		setTypeface(FontUtils.getTypeFace(this.getContext()));
-		//监听时区变更
-		dateUtis.registerTimeZoneBroadcast(this.getContext());
 		
 		//pause动画 是否播放
     }
+    
+    public Object getExtra() {
+		return extra;
+	}
+
+	public void setExtra(Object extra) {
+		this.extra = extra;
+	}
+    
+	public boolean isStartAlphaAnimation() {
+		return isStartAlphaAnimation;
+	}
+
+	public void setStartAlphaAnimation(boolean isStartAlphaAnimation) {
+		this.isStartAlphaAnimation = isStartAlphaAnimation;
+	}
 
     public void setFont (String fontName) {
     	setTypeface(FontUtils.getTypeFace(this.getContext(), fontName));
@@ -120,15 +141,23 @@ public class Chronometer extends TextView {
 	}
     
     @Override
+    protected void onAttachedToWindow() {
+    	super.onAttachedToWindow();
+    	//监听时区变更
+    	dateUtis.registerTimeZoneBroadcast(this.getContext());
+    }
+    
+    @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        //撤销监听
+    	dateUtis.unregisterTimeZoneBroadcast(this.getContext());
         stop();
     }
 
     @Override
     protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);
-        dateUtis.unregisterTimeZoneBroadcast(this.getContext());
         stop();
     }
     
@@ -172,6 +201,10 @@ public class Chronometer extends TextView {
 		if (mStarted == true) {
 			stop();
 			pauseDuringTime = duringTime();
+			
+			//动画
+			if (isStartAlphaAnimation == true) 
+				new AnimationUtils().getPauseAlpha(this);
 		}
 	}
 
