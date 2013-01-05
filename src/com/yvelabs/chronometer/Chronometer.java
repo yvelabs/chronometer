@@ -17,6 +17,10 @@ import com.yvelabs.chronometer.utils.FontUtils;
 
 @RemoteView
 public class Chronometer extends TextView {
+	
+	public static final String START = "START";
+	public static final String PAUSE = "PAUSE";
+	public static final String STOP = "STOP";
 
     /***
      * A callback that notifies when the chronometer has incremented on its own.
@@ -38,7 +42,8 @@ public class Chronometer extends TextView {
     private long pauseDuringTime = 0;
     private DateUtils dateUtis;
     private Object extra;
-    private boolean isStartAlphaAnimation = false; //暂停时, 是否播放动画
+    private boolean isPlayPauseAlphaAnimation = false; //暂停时, 是否播放动画
+    private String state = this.STOP;
 
 	private static final int TICK_WHAT = 2;
     
@@ -77,6 +82,10 @@ public class Chronometer extends TextView {
 		//pause动画 是否播放
     }
     
+	public String getState() {
+		return state;
+	}
+    
     public Object getExtra() {
 		return extra;
 	}
@@ -84,15 +93,15 @@ public class Chronometer extends TextView {
 	public void setExtra(Object extra) {
 		this.extra = extra;
 	}
-    
-	public boolean isStartAlphaAnimation() {
-		return isStartAlphaAnimation;
+	
+	public boolean isPlayPauseAlphaAnimation() {
+		return isPlayPauseAlphaAnimation;
 	}
 
-	public void setStartAlphaAnimation(boolean isStartAlphaAnimation) {
-		this.isStartAlphaAnimation = isStartAlphaAnimation;
+	public void setPlayPauseAlphaAnimation(boolean isPlayPauseAlphaAnimation) {
+		this.isPlayPauseAlphaAnimation = isPlayPauseAlphaAnimation;
 	}
-
+	
     public void setFont (String fontName) {
     	setTypeface(FontUtils.getTypeFace(this.getContext(), fontName));
     }
@@ -170,6 +179,12 @@ public class Chronometer extends TextView {
     	//显示归零
     	mHandler.removeMessages(TICK_WHAT);
     	updateText(startTime);
+    	
+    	//停止动画
+		if (isPlayPauseAlphaAnimation == true)
+			clearAnimation();
+		
+		state = this.STOP;
     }
 
     public void start() {
@@ -182,11 +197,20 @@ public class Chronometer extends TextView {
     		updateText(SystemClock.elapsedRealtime());
 			dispatchChronometerTick();
 			mHandler.sendMessageDelayed(Message.obtain(mHandler, TICK_WHAT), 1000);
+			
+			//停止动画
+			if (isPlayPauseAlphaAnimation == true)
+				clearAnimation();
+			
+			state = this.START;
     	}
     }
     
 	public void stop() {
 		pauseDuringTime = 0;
+		//停止动画
+		if (isPlayPauseAlphaAnimation == true)
+			clearAnimation();
 		
 		if (mStarted == true) {
 			stopTime = SystemClock.elapsedRealtime();
@@ -194,6 +218,7 @@ public class Chronometer extends TextView {
 			mHandler.removeMessages(TICK_WHAT);
 			dispatchChronometerTick();
 			updateText(stopTime);
+			state = this.STOP;
 		}
 	}
 	
@@ -202,9 +227,11 @@ public class Chronometer extends TextView {
 			stop();
 			pauseDuringTime = duringTime();
 			
-			//动画
-			if (isStartAlphaAnimation == true) 
+			//开始动画
+			if (isPlayPauseAlphaAnimation == true)
 				new AnimationUtils().getPauseAlpha(this);
+			
+			state = this.PAUSE;
 		}
 	}
 
