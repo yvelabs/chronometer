@@ -153,14 +153,14 @@ public class Chronometer extends TextView {
     protected void onAttachedToWindow() {
     	super.onAttachedToWindow();
     	//监听时区变更
-    	dateUtis.registerTimeZoneBroadcast(this.getContext());
+//    	dateUtis.registerTimeZoneBroadcast(this.getContext());
     }
     
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         //撤销监听
-    	dateUtis.unregisterTimeZoneBroadcast(this.getContext());
+//    	dateUtis.unregisterTimeZoneBroadcast(this.getContext());
         stop();
     }
 

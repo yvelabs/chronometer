@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.util.Log;
 
 public class DateUtils {
 
@@ -17,19 +18,27 @@ public class DateUtils {
 	private static final String ACTION_TIMEZONE_CHANGED = "android.intent.action.ACTION_TIMEZONE_CHANGED";
 
 	private static long timeZoneAdjust;
-	private static TimeZoneChanged timeZoneChanged;
+	private static TimeZoneChangedReceiver timeZoneChanged;
 
 	public DateUtils() {
 		setTimeZoneAdjust();
 	}
 	
+	/**
+	 * time zone broadcast register
+	 * @param context
+	 */
 	public void registerTimeZoneBroadcast (Context context) {
 		IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction(ACTION_TIMEZONE_CHANGED); // 为BroadcastReceiver指定action，使之用于接收同action的广播
-		timeZoneChanged = new TimeZoneChanged();
+		intentFilter.addAction(ACTION_TIMEZONE_CHANGED);
+		timeZoneChanged = new TimeZoneChangedReceiver();
 		context.registerReceiver(timeZoneChanged, intentFilter);
 	}
 	
+	/**
+	 * time zone broadcast unregister
+	 * @param context
+	 */
 	public void unregisterTimeZoneBroadcast (Context context) {
 		if (timeZoneChanged != null) {
 			context.unregisterReceiver(timeZoneChanged);
@@ -56,9 +65,4 @@ public class DateUtils {
 	}
 }
 
-class TimeZoneChanged extends BroadcastReceiver {
-	@Override
-	public void onReceive(Context context, Intent intent) {
-		DateUtils.setTimeZoneAdjust();
-	}
-}
+
