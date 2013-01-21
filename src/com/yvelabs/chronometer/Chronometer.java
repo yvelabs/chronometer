@@ -219,7 +219,7 @@ public class Chronometer extends TextView {
 		if (mStarted == true) {
 			stopTime = SystemClock.elapsedRealtime();
 			mStarted = false;
-			mHandler.removeMessages(TICK_WHAT);
+			mHandler.removeMessages(TICK_WHAT); 
 			dispatchChronometerTick();
 			updateText(stopTime);
 			state = this.STOP;
