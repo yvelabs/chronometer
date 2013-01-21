@@ -170,6 +170,10 @@ public class Chronometer extends TextView {
         stop();
     }
     
+    public void setStartingTime (long time) {
+    	pauseDuringTime = time;
+    }
+    
     public void reset() {
     	startTime = 0;
     	pauseDuringTime = 0;
