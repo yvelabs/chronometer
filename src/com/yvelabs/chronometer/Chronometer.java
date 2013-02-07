@@ -137,7 +137,7 @@ public class Chronometer extends TextView {
 			return 0;
 
 		if (startTime > 0 && stopTime == 0)
-			return SystemClock.elapsedRealtime() - startTime;
+			return System.currentTimeMillis() - startTime;
 
 		if (startTime > 0 && stopTime > 0)
 			return stopTime - startTime;
@@ -193,12 +193,12 @@ public class Chronometer extends TextView {
 
     public void start() {
     	if (mStarted == false) { 
-    		startTime = SystemClock.elapsedRealtime() - pauseDuringTime;
+    		startTime = System.currentTimeMillis() - pauseDuringTime;
     		pauseDuringTime = 0;
         	stopTime = 0;
     		mStarted = true;
     		
-    		updateText(SystemClock.elapsedRealtime());
+    		updateText(System.currentTimeMillis());
 			dispatchChronometerTick();
 			mHandler.sendMessageDelayed(Message.obtain(mHandler, TICK_WHAT), 1000);
 			
@@ -217,7 +217,7 @@ public class Chronometer extends TextView {
 			clearAnimation();
 		
 		if (mStarted == true) {
-			stopTime = SystemClock.elapsedRealtime();
+			stopTime = System.currentTimeMillis();
 			mStarted = false;
 			mHandler.removeMessages(TICK_WHAT); 
 			dispatchChronometerTick();
@@ -246,7 +246,7 @@ public class Chronometer extends TextView {
     private Handler mHandler = new Handler() {
         public void handleMessage(Message m) {
             if (mStarted) {
-                updateText(SystemClock.elapsedRealtime());
+                updateText(System.currentTimeMillis());
                 dispatchChronometerTick();
                 mHandler.sendMessageDelayed(Message.obtain(this, TICK_WHAT), 1000);
             }
